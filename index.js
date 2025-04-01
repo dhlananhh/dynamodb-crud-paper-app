@@ -115,6 +115,84 @@ app.get('/update/:paper_id', async (req, res) => {
 	}
 })
 
+
+/**
+ * UPDATE Course (POST /update/:id)
+ * Updates an existing course item in DynamoDB.
+ */
+app.post('/update/:id', async (req, res) => {
+	const idParam = Number(req.params.id); // ID from URL
+	const { name, course_type, semester, department } = req.body; // Updated data from form
+
+	if (isNaN(idParam)) {
+		return res.status(400).send('Invalid Course ID in URL.');
+	}
+
+	// Construct the UpdateExpression and related attributes dynamically
+	let updateExpression = 'SET ';
+	const expressionAttributeValues = {};
+	const expressionAttributeNames = {}; // Needed if attribute names are reserved keywords
+
+	let updateParts = [];
+
+	// Add fields to update only if they are provided in the form body
+	if (name) {
+		updateParts.push('#n = :n'); // Use placeholders for attribute names
+		expressionAttributeValues[':n'] = name;
+		expressionAttributeNames['#n'] = 'name'; // Map placeholder to actual attribute name
+	}
+	if (course_type) {
+		updateParts.push('#ct = :ct');
+		expressionAttributeValues[':ct'] = course_type;
+		expressionAttributeNames['#ct'] = 'course_type';
+	}
+	if (semester) {
+		updateParts.push('#s = :s');
+		expressionAttributeValues[':s'] = semester;
+		expressionAttributeNames['#s'] = 'semester';
+	}
+	if (department) {
+		updateParts.push('#d = :d');
+		expressionAttributeValues[':d'] = department;
+		expressionAttributeNames['#d'] = 'department';
+	}
+
+	// Check if any fields are actually being updated
+	if (updateParts.length === 0) {
+		console.warn(`Update attempt for ID ${idParam} with no fields to update.`);
+		// Optionally redirect or send a message
+		return res.redirect('/'); // Or: res.status(400).send('No fields provided for update.');
+	}
+
+	updateExpression += updateParts.join(', ');
+
+	const params = {
+		TableName: tableName,
+		Key: {
+			id: idParam, // Use the ID from the URL parameter
+		},
+		UpdateExpression: updateExpression,
+		ExpressionAttributeValues: expressionAttributeValues,
+		ExpressionAttributeNames: expressionAttributeNames, // Include this map
+		ReturnValues: 'UPDATED_NEW', // Optional: returns the item attributes as they appeared after the update
+		// Optional: Add a condition to ensure the item exists before updating
+		// ConditionExpression: "attribute_exists(id)"
+	};
+
+	try {
+		const data = await docClient.update(params).promise();
+		console.log(`Successfully updated course with ID ${idParam}:`, JSON.stringify(data.Attributes, null, 2));
+		res.redirect('/'); // Redirect after successful update
+	} catch (err) {
+		console.error(`Error updating course ${idParam}:`, JSON.stringify(err, null, 2));
+		// Handle potential ConditionCheckFailedException
+		// if (err.code === 'ConditionalCheckFailedException') {
+		//     return res.status(404).send('Not Found: Course with this ID does not exist for update.');
+		// }
+		res.status(500).send('Internal Server Error: Could not update course.');
+	}
+});
+
 /**
  * DELETE Paper (POST /delete)
  * Deletes a paper item from the DynamoDB table based on ID.
