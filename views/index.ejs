@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paper Management - DynamoDB CRUD</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    button,
+    input[type="submit"] {
+      transition: background-color 0.2s ease-in-out;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+  <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <!-- Page Title -->
+    <h1 class="mb-6 text-3xl font-bold text-center text-gray-800 uppercase">
+      Paper Management System
+    </h1>
+
+    <!-- Form Section -->
+    <div class="bg-white border border-gray-300 rounded-lg shadow-md mb-8">
+      <div class="p-6 space-y-6">
+
+        <!-- Form Create -->
+        <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">
+          Add New Paper
+        </h2>
+        <form action="/add" method="POST" id="create-course" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div>
+              <label for="paper_id" class="text-sm font-medium text-gray-700 block mb-1">
+                Paper ID *
+              </label>
+              <input type="number" name="id" id="id"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required>
+            </div>
+            <div>
+              <label for="paper_name" class="text-sm font-medium text-gray-700 block mb-1">
+                Paper Name *
+              </label>
+              <input type="text" name="paper_name" id="paper_name"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required>
+            </div>
+            <div>
+              <label for="authors" class="text-sm font-medium text-gray-700 block mb-1">
+                Authors *
+              </label>
+              <input type="text" name="authors" id="authors"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required>
+            </div>
+            <div>
+              <label for="isbn" class="text-sm font-medium text-gray-700 block mb-1">
+                ISBN *
+              </label>
+              <input type="text" name="isbn" id="isbn"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required>
+            </div>
+            <div>
+              <label for="page_number" class="text-sm font-medium text-gray-700 block mb-1">
+                Page number *
+              </label>
+              <input type="text" name="page_number" id="page_number"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required>
+            </div>
+            <div>
+              <label for="publish_year" class="text-sm font-medium text-gray-700 block mb-1">
+                Publish year *
+              </label>
+              <input type="text" name="publish_year" id="publish_year"
+                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                required>
+            </div>
+          </div>
+          <div class="text-center pt-2">
+            <button
+              class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded focus:outline-none focus:shadow-outline"
+              type="submit">
+              Add Paper
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">Paper List</h2>
+    <div class="shadow-md rounded-lg overflow-x-auto bg-white">
+      <% if (papers && papers.length> 0) { %>
+        <table class="min-w-full table-auto">
+          <thead class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+            <tr>
+              <th class="py-3 px-4 text-left">Paper ID</th>
+              <th class="py-3 px-4 text-left">Paper Name</th>
+              <th class="py-3 px-4 text-left">Authors</th>
+              <th class="py-3 px-4 text-left">ISBN</th>
+              <th class="py-3 px-4 text-left">Page number</th>
+              <th class="py-3 px-4 text-left">Publish year</th>
+              <th class="py-3 px-4 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700 text-sm">
+            <% papers.sort((a, b)=> a.id - b.id).forEach(item => { %> <!-- Sort by ID for consistency -->
+              <tr class="border-b border-gray-200 hover:bg-gray-100">
+                <td class="py-3 px-4">
+                  <%= item.paper_id %>
+                </td>
+                <td class="py-3 px-4">
+                  <%= item.paper_name %>
+                </td>
+                <td class="py-3 px-4">
+                  <%= item.authors %>
+                </td>
+                <td class="py-3 px-4">
+                  <%= item.isbn %>
+                </td>
+                <td class="py-3 px-4">
+                  <%= item.page_number %>
+                </td>
+                <td class="py-3 px-4">
+                  <%= item.publish_year %>
+                </td>
+                <td class="py-3 px-4 text-center whitespace-nowrap">
+                  <!-- Update Button/Link -->
+                  <a href="/update/<%= item.paper_id %>"
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-3 rounded text-xs focus:outline-none focus:shadow-outline inline-block mr-2">
+                    Edit
+                  </a>
+                  <!-- Recommended Delete Button (replace the form above) -->
+                  <form action="/delete" method="POST" class="inline-block"
+                    onsubmit="return confirm('Are you sure you want to delete course ID <%= item.id %>?');">
+                    <input type="hidden" name="id" value="<%= item.id %>">
+                    <button type="submit"
+                      class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded text-xs focus:outline-none focus:shadow-outline inline-block">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              <% }); %>
+          </tbody>
+        </table>
+        <% } else { %>
+          <p class="text-center text-gray-500 py-6">No papers found.</p>
+          <% } %>
+    </div>
+  </div>
+  <%- include('fragments/footer') %>
+</body>
+
+</html>
