@@ -30,13 +30,13 @@
         <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">
           Add New Paper
         </h2>
-        <form action="/add" method="POST" id="create-course" class="space-y-4">
+        <form action="/add" method="POST" id="create-paper" class="space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label for="paper_id" class="text-sm font-medium text-gray-700 block mb-1">
                 Paper ID *
               </label>
-              <input type="number" name="id" id="id"
+              <input type="number" name="paper_id" id="paper_id"
                 class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 required>
             </div>
@@ -137,8 +137,8 @@
                   </a>
                   <!-- Recommended Delete Button (replace the form above) -->
                   <form action="/delete" method="POST" class="inline-block"
-                    onsubmit="return confirm('Are you sure you want to delete course ID <%= item.id %>?');">
-                    <input type="hidden" name="id" value="<%= item.id %>">
+                    onsubmit="return confirm('Are you sure you want to delete course ID <%= item.paper_id%>?');">
+                    <input type="hidden" name="paper_id" value="<%= item.paper_id %>">
                     <button type="submit"
                       class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded text-xs focus:outline-none focus:shadow-outline inline-block">Delete</button>
                   </form>

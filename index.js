@@ -115,6 +115,36 @@ app.get('/update/:paper_id', async (req, res) => {
 	}
 })
 
+/**
+ * DELETE Paper (POST /delete)
+ * Deletes a paper item from the DynamoDB table based on ID.
+ */
+app.post('/delete', async (req, res) => {
+	const { paper_id } = req.body;
+
+	// basic validation
+	if (!paper_id) {
+		console.warn('Attempted to delete without providing an ID.');
+		return res.redirect('/');
+	}
+
+	const params = {
+		TableName: tableName,
+		Key: {
+			paper_id: Number(paper_id),
+		}
+	};
+
+	try {
+		await docClient.delete(params).promise();
+		console.log(`Successfully deleted paper with ID: ${paper_id}`);
+		res.redirect('/');
+	} catch (err) {
+		console.error(`Error deleteing course with ID ${paper_id}`, JSON.stringify(err, null, 2));
+		res.status(500).send('Internal Server Error: Could not delete paper.');
+	}
+});
+
 // --- start server ---
 app.listen(PORT, () => {
 	console.log(`Server is running on http://localhost:${PORT}`);
